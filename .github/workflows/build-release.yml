@@ -1,0 +1,62 @@
+name: build-release
+
+on: 
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout/@v3
+      - name: Set Up Python 3.9
+        uses: actions/setup-python/@v3
+        with:
+          python-version: '3.9'
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+      - name: Read Aum Name
+        id: aum_name
+        uses: ashley-taylor/read-json-property-action@v1.0
+        with:
+          path: ./src/INFO
+          property: name
+      - name: Read Aum Version
+        id: aum_version
+        uses: ashley-taylor/read-json-property-action@v1.0
+        with:
+          path: ./src/INFO
+          property: version
+      - name: Build Package
+        run: python build.py -z
+      - name: Create ChangeLog Text
+        id: changelog_text
+        uses: loopwerk/tag-changelog@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config_file: .github/scripts/tag-changelog-config.js
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: ${{ steps.changelog_text.outputs.changes }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload_release_asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/${{ steps.aum_name.outputs.value }}_v${{ steps.aum_version.outputs.value }}.zip
+          asset_name: ${{ steps.aum_name.outputs.value }}_v${{ steps.aum_version.outputs.value }}.zip
+          asset_content_type: application/zip
