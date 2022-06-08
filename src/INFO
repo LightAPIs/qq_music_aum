@@ -1,0 +1,9 @@
+{
+  "name": "qq_music",
+  "displayname": "QQ音乐",
+  "description": "y.qq.com",
+  "version": "1.0",
+  "module": "qqSource.php",
+  "type": "lyric",
+  "class": "AumQQSource"
+}
