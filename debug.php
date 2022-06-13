@@ -1,5 +1,4 @@
 <?php
-require('src/qqSource.php');
 
 class AudioStationResult {
     private $items;
@@ -11,7 +10,7 @@ class AudioStationResult {
         printf("\nartist = %s\n", $artist);
         printf("title = %s\n", $title);
         printf("id = %s\n", $id);
-        printf("partialLyric = %s\n\n", $partialLyric);
+        printf("partialLyric = %s\n", $partialLyric);
 
         array_push($this->items, array(
             'artist' => $artist,
@@ -26,7 +25,7 @@ class AudioStationResult {
         printf("song lyric:\n");
         printf("***** BEGIN OF LYRIC *****\n");
         printf("%s\n", $lyric);
-        printf("***** END OF LYRIC *****\n\n");
+        printf("***** END OF LYRIC *****\n");
     }
 
     public function getFirstItem() {
@@ -35,18 +34,4 @@ class AudioStationResult {
         }
         return null;
     }
-}
-
-$title = '별';
-$artist = 'Loco&俞胜恩';
-
-echo "测试开始...\n变量:<title = $title; artist = $artist>\n";
-$testObj = new AudioStationResult();
-$downloader = (new ReflectionClass('AumQQSource'))->newInstance();
-$count = $downloader->getLyricsList($artist, $title, $testObj);
-if ($count > 0) {
-    $item = $testObj->getFirstItem();
-    $downloader->getLyrics($item['id'], $testObj);
-} else {
-    echo "\n没有查找到任何歌词！\n";
 }
