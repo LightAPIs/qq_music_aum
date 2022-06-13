@@ -37,8 +37,8 @@ class AudioStationResult {
     }
 }
 
-$title = 'DDU-DU DDU-DU (Korean Ver.)';
-$artist = 'BLACKPINK';
+$title = '별';
+$artist = 'Loco&俞胜恩';
 
 echo "测试开始...\n变量:<title = $title; artist = $artist>\n";
 $testObj = new AudioStationResult();
