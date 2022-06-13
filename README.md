@@ -20,4 +20,5 @@
 
 ## 其他歌词插件
 
+- [LightAPIs/followlyrics_aum](https://github.com/LightAPIs/followlyrics_aum)
 - [LightAPIs/kugeci_aum](https://github.com/LightAPIs/kugeci_aum)
