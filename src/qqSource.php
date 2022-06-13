@@ -26,7 +26,6 @@ class AumQQSource {
         $partialMatchArray = array();
         foreach ($list as $item) {
             $lowSong = strtolower($item['song']);
-
             if ($this->lowTitle === $lowSong) {
                 array_push($exactMatchArray, $item);
             } elseif ($this->isPartialMatch($lowSong, $this->lowTitle)) {
@@ -64,7 +63,7 @@ class AumQQSource {
             return false;
         }
 
-        $info->addLyrics($lyric, $id);
+        $info->addLyrics($this->decodeHtmlSpecialChars($lyric), $id);
         return true;
     }
 
@@ -98,6 +97,10 @@ class AumQQSource {
             }
         }
         return $foundArray;
+    }
+
+    private function decodeHtmlSpecialChars($str) {
+        return htmlspecialchars_decode($str, ENT_QUOTES | ENT_HTML5);
     }
 }
 
