@@ -3,14 +3,20 @@ require ('qqHandler.php');
 
 class AumQQSource {
     private $mArtist = '';
+    private $lowArtist = '';
     private $mTitle = '';
+    private $lowTitle = '';
     public function __construct() {}
 
     public function getLyricsList($artist, $title, $info) {
         $artist = trim($artist);
         $this->mArtist = $artist;
+        $this->lowArtist = strtolower($artist);
+
         $title = trim($title);
         $this->mTitle = $title;
+        $this->lowTitle = strtolower($title);
+
         $list = AumQQHandler::search($title);
         if (count($list) === 0) {
             return 0;
@@ -19,37 +25,30 @@ class AumQQSource {
         $exactMatchArray = array();
         $partialMatchArray = array();
         foreach ($list as $item) {
-            $lowTitle = strtolower($title);
             $lowSong = strtolower($item['song']);
 
-            if ($lowTitle === $lowSong) {
+            if ($this->lowTitle === $lowSong) {
                 array_push($exactMatchArray, $item);
-            } elseif (strpos($lowSong, $lowTitle) !== false || strpos($lowTitle, $lowSong) !== false) {
+            } elseif ($this->isPartialMatch($lowSong, $this->lowTitle)) {
                 array_push($partialMatchArray, $item);
             }
         }
 
-        $songArray = array();
-        if (count($exactMatchArray) > 0) {
-            $songArray = $exactMatchArray;
-        } elseif (count($partialMatchArray) > 0) {
-            $songArray = $partialMatchArray;
-        }
-
-        if (count($songArray) === 0) {
+        if (count($exactMatchArray) === 0 && count($partialMatchArray) === 0) {
             return 0;
         }
 
         $foundArray = array();
-        foreach ($songArray as $item) {
-            $lowArtist = strtolower($artist);
-            foreach ($item['singers'] as $singer) {
-                $lowSinger = strtolower($singer);
-                if (strpos($lowArtist, $lowSinger) !== false || strpos($lowSinger, $lowArtist) !== false) {
-                    array_push($foundArray, $item);
-                    break;
-                }
-            }
+        if (count($exactMatchArray) > 0) {
+            $foundArray = $this->findSongItems($exactMatchArray);
+        }
+
+        if (count($foundArray) === 0 && count($partialMatchArray) > 0) {
+            $foundArray = $this->findSongItems($partialMatchArray);
+        }
+
+        if (count($foundArray) === 0) {
+            return 0;
         }
 
         usort($foundArray, array($this, 'compare'));
@@ -81,6 +80,24 @@ class AumQQSource {
     private function getStringSimilarPercent($lhs, $rhs) {
         similar_text($lhs, $rhs, $percent);
         return $percent;
+    }
+
+    private function isPartialMatch($lhs, $rhs) {
+        return strpos($lhs, $rhs) !== false || strpos($rhs, $lhs) !== false;
+    }
+
+    private function findSongItems($songArray) {
+        $foundArray = array();
+        foreach ($songArray as $item) {
+            foreach ($item['singers'] as $singer) {
+                $lowSinger = strtolower($singer);
+                if ($this->isPartialMatch($this->lowArtist, $lowSinger)) {
+                    array_push($foundArray, $item);
+                    break;
+                }
+            }
+        }
+        return $foundArray;
     }
 }
 
