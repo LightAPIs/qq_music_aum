@@ -38,6 +38,11 @@ class AumQQHandler {
 
         $songArray = $json['data']['song']['list'];
         foreach($songArray as $songItem) {
+            if (empty($songItem['albumid'])) {
+                # 移除不会包含歌词的结果项
+                continue;
+            }
+
             $song = $songItem['songname'];
             $id = 'songmid=' . $songItem['songmid'] . '&musicid=' . $songItem['songid'];
             $singers = array();
@@ -45,7 +50,7 @@ class AumQQHandler {
                 array_push($singers, $singer['name']);
             }
             $des = $songItem['albumname'];
-            if ($des === '') {
+            if ($des === '' || $des === null) {
                 $des = $songItem['lyric'];
             }
 
