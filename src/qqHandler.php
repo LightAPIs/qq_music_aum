@@ -45,6 +45,9 @@ class AumQQHandler {
                 array_push($singers, $singer['name']);
             }
             $des = $songItem['albumname'];
+            if ($des === '') {
+                $des = $songItem['lyric'];
+            }
 
             array_push($results, array('song' => $song, 'id' => $id, 'singers' => $singers, 'des' => $des));
         }
