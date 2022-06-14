@@ -33,6 +33,7 @@ class AumCommon {
     public static function processLrcLine($lrc) {
         $result = array();
         foreach (explode("\n", $lrc) as $line) {
+            $line = trim($line);
             $key = substr($line, 0, 10);
             $value = substr($line, 10, strlen($line) -10);
             if (!AumCommon::isValidLrcTime($key) || !AumCommon::isValidLrcText($value)) {
@@ -75,7 +76,7 @@ class AumCommon {
             }
 
             if ($trans !== '') {
-                $resultLrc .= ' 【' . $trans . '】';
+                $resultLrc .= " 【{$trans}】";
             }
             $resultLrc .= "\n";
         }
