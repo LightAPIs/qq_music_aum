@@ -81,7 +81,7 @@ class AumQQTranslation {
                 $key = '';
                 $value = $line;
             }
-            array_push($result, array('tag' => $key, 'lrc' => $value));
+            array_push($result, array('tag' => $key, 'lrc' => trim($value)));
         }
         return $result;
     }
