@@ -17,7 +17,7 @@ class AumQQSource {
         $this->mTitle = $title;
         $this->lowTitle = strtolower($title);
 
-        $list = AumQQHandler::search($title);
+        $list = AumQQHandler::search($title, $artist);
         if (count($list) === 0) {
             return 0;
         }

@@ -1,5 +1,5 @@
 <?php
-require('common.php');
+require('qqTranslation.php');
 
 class AumQQHandler {
     public static $siteSearch = 'https://c.y.qq.com/soso/fcgi-bin/client_search_cp?aggr=1&format=json&cr=1&flag_qc=0&p=1&n=30&w=';
@@ -26,13 +26,13 @@ class AumQQHandler {
         if ($result === false) {
             return $defaultValue;
         } else {
-            return AumQQHandler::getCleanJsonData($result);
+            return $result;
         }
     }
 
-    public static function search($word) {
+    public static function search($title, $artist) {
         $results = array();
-        $url = AumQQHandler::$siteSearch . urlencode($word);
+        $url = AumQQHandler::$siteSearch . urlencode($title);
         $jsonContent = AumQQHandler::getContent($url, '{"data":{"song":{"list":[]}}}');
         $json = json_decode($jsonContent, true);
 
@@ -68,16 +68,9 @@ class AumQQHandler {
         // Chinese translation
         if (strlen($json['trans']) > 0) {
             $transLyric = base64_decode($json['trans']);
-            $lyric = AumCommon::getChineseTranslationLrc($lyric, $transLyric);
+            $tl = new AumQQTranslation($lyric, $transLyric);
+            $lyric = $tl->getChineseTranslationLrc();
         }
         return $lyric;
-    }
-
-    public static function getCleanJsonData($data) {
-        if (preg_match('/^\w+\((\{.+})\)\s*$/', $data)) {
-            preg_match('/^\w+\((\{.+})\)\s*$/', $data, $matches);
-            return $matches[1];
-        }
-        return $data;
     }
 }
