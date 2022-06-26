@@ -3,21 +3,21 @@ require ('qqHandler.php');
 
 class AumQQSource {
     private $mArtist = '';
-    private $lowArtist = '';
+    private $cArtist = '';
     private $mTitle = '';
-    private $lowTitle = '';
+    private $cTitle = '';
     public function __construct() {}
 
     public function getLyricsList($artist, $title, $info) {
         $artist = trim($artist);
         $this->mArtist = $artist;
-        $this->lowArtist = strtolower($artist);
+        $this->cArtist = $this->getCleanStr($artist);
 
         $title = trim($title);
         $this->mTitle = $title;
-        $this->lowTitle = strtolower($title);
+        $this->cTitle = $this->getCleanStr($title);
 
-        $list = AumQQHandler::search($title, $artist);
+        $list = AumQQHandler::search($this->mTitle, $this->mArtist);
         if (count($list) === 0) {
             return 0;
         }
@@ -25,10 +25,10 @@ class AumQQSource {
         $exactMatchArray = array();
         $partialMatchArray = array();
         foreach ($list as $item) {
-            $lowSong = strtolower($item['song']);
-            if ($this->lowTitle === $lowSong) {
+            $cSong = $this->getCleanStr($item['song']);
+            if ($this->cTitle === $cSong) {
                 array_push($exactMatchArray, $item);
-            } elseif ($this->isPartialMatch($lowSong, $this->lowTitle)) {
+            } elseif ($this->isPartialMatch($cSong, $this->cTitle)) {
                 array_push($partialMatchArray, $item);
             }
         }
@@ -89,8 +89,8 @@ class AumQQSource {
         $foundArray = array();
         foreach ($songArray as $item) {
             foreach ($item['singers'] as $singer) {
-                $lowSinger = strtolower($singer);
-                if ($this->isPartialMatch($this->lowArtist, $lowSinger)) {
+                $cSinger = $this->getCleanStr($singer);
+                if ($this->isPartialMatch($this->cArtist, $cSinger)) {
                     array_push($foundArray, $item);
                     break;
                 }
@@ -101,6 +101,14 @@ class AumQQSource {
 
     private function decodeHtmlSpecialChars($str) {
         return htmlspecialchars_decode($str, ENT_QUOTES | ENT_HTML5);
+    }
+
+    private function getCleanStr($str) {
+        $lowStr = strtolower($str);
+        return str_replace(
+            array(" ", "，", "：", "；", "！", "？", "「", "」", "（", "）", "。"),
+            array("", ",", ":", ";", "!", "?", "｢", "｣", "(", ")", "."),
+            $lowStr);
     }
 }
 

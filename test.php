@@ -8,7 +8,9 @@ $testArray = array(
     array('title' => 'Reign Fall', 'artist' => 'Chamillionaire&Scarface&Killer Mike'),
     array('title' => 'ひとつのハートで-《神龙斗士》TV动画第1-32集片头曲', 'artist' => '三重野瞳'),
     array('title' => '빠빠빠', 'artist' => 'Crayon Pop'),
-    array('title' => '유후', 'artist' => 'Brave Girls')
+    array('title' => '유후', 'artist' => 'Brave Girls'),
+    array('title' => 'Mood(Explicit)', 'artist' => '24KGoldn&iann dior'),
+    array('title' => 'Silence(Illenium Remix)', 'artist' => 'Khalid&Illenium&marshmello')
 );
 
 foreach ($testArray as $key => $item) {
