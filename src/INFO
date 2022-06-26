@@ -2,7 +2,7 @@
   "name": "qq_music",
   "displayname": "QQ音乐",
   "description": "y.qq.com",
-  "version": "1.5",
+  "version": "1.6",
   "module": "qqSource.php",
   "type": "lyric",
   "class": "AumQQSource"
