@@ -32,7 +32,7 @@ class AumQQHandler {
 
     public static function search($title, $artist) {
         $results = array();
-        $url = AumQQHandler::$siteSearch . urlencode($title);
+        $url = AumQQHandler::$siteSearch . urlencode($title . " " . $artist);
         $jsonContent = AumQQHandler::getContent($url, '{"data":{"song":{"list":[]}}}');
         $json = json_decode($jsonContent, true);
 
