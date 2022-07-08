@@ -2,7 +2,7 @@
 require('qqTranslation.php');
 
 class AumQQHandler {
-    public static $siteSearch = 'https://c.y.qq.com/soso/fcgi-bin/client_search_cp?aggr=1&format=json&cr=1&flag_qc=0&p=1&n=30&w=';
+    public static $siteSearch = 'https://c.y.qq.com/splcloud/fcgi-bin/smartbox_new.fcg?inCharset=utf-8&outCharset=utf-8&notice=0&needNewCode=1&cv=4747474&ct=24&format=json&platform=yqq.json&uin=1008610010&g_tk_new_20200303=1311353583&g_tk=1311353583&hostUin=0&is_xml=0&key=';
     public static $siteDownload = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?format=json&g_tk=5381&';
     public static $siteHeader = array('Origin: https://y.qq.com', 'Referer: https://y.qq.com/n/ryqq/player');
     public static $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36';
@@ -32,26 +32,18 @@ class AumQQHandler {
 
     public static function search($title, $artist) {
         $results = array();
-        $url = AumQQHandler::$siteSearch . urlencode($title . " " . $artist);
-        $jsonContent = AumQQHandler::getContent($url, '{"data":{"song":{"list":[]}}}');
+        $url = AumQQHandler::$siteSearch . urlencode($title) . "&_=" . AumQQHandler::getNowTimeStamp(13);
+        $jsonContent = AumQQHandler::getContent($url, '{"data":{"song":{"itemlist":[]}}}');
         $json = json_decode($jsonContent, true);
 
-        $songArray = $json['data']['song']['list'];
+        $songArray = $json['data']['song']['itemlist'];
         foreach($songArray as $songItem) {
-            if (empty($songItem['albumid'])) {
-                # 移除不会包含歌词的结果项
-                continue;
-            }
-
-            $song = $songItem['songname'];
-            $id = 'songmid=' . $songItem['songmid'] . '&musicid=' . $songItem['songid'];
-            $singers = array();
-            foreach ($songItem['singer'] as $singer) {
-                array_push($singers, $singer['name']);
-            }
-            $des = $songItem['albumname'];
+            $song = $songItem['name'];
+            $id = 'songmid=' . $songItem['mid'] . '&musicid=' . $songItem['id'];
+            $singers = explode("/", $songItem["singer"]);
+            $des = $songItem['docid'];
             if ($des === '' || $des === null) {
-                $des = $songItem['lyric'];
+                $des = $songItem['id'];
             }
 
             array_push($results, array('song' => $song, 'id' => $id, 'singers' => $singers, 'des' => $des));
@@ -72,5 +64,11 @@ class AumQQHandler {
             $lyric = $tl->getChineseTranslationLrc();
         }
         return $lyric;
+    }
+
+    public static function getNowTimeStamp($len) {
+        list($msec, $sec) = explode(' ', microtime());
+        $msectime = (float)sprintf('%.0f', (floatval($msec) + floatval($sec)) * 1000);
+        return substr($msectime, 0, $len);
     }
 }
