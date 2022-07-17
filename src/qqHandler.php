@@ -2,20 +2,26 @@
 require('qqTranslation.php');
 
 class AumQQHandler {
-    public static $siteSearch = 'https://c.y.qq.com/splcloud/fcgi-bin/smartbox_new.fcg?inCharset=utf-8&outCharset=utf-8&notice=0&needNewCode=1&cv=4747474&ct=24&format=json&platform=yqq.json&uin=1008610010&g_tk_new_20200303=1311353583&g_tk=1311353583&hostUin=0&is_xml=0&key=';
+    public static $siteSearch = 'https://u.y.qq.com/cgi-bin/musicu.fcg';
     public static $siteDownload = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?format=json&g_tk=5381&';
-    public static $siteHeader = array('Origin: https://y.qq.com', 'Referer: https://y.qq.com/n/ryqq/player');
-    public static $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36';
+    public static $siteSHeader = array('Host: u.y.qq.com');
+    public static $siteLHeader = array('Origin: https://y.qq.com', 'Referer: https://y.qq.com/n/ryqq/player');
+    public static $userSAgent = 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)';
+    public static $userLAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36';
 
-    public static function getContent($url, $defaultValue) {
+    public static function getContent($url, $defaultValue, $siteHeader, $userAgent, $isPost = false, $postParams = null) {
         $curl = curl_init();
 
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($curl, CURLOPT_ENCODING, 'gzip,deflate,br');
-        curl_setopt($curl, CURLOPT_USERAGENT, AumQQHandler::$userAgent);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, AumQQHandler::$siteHeader);
+        curl_setopt($curl, CURLOPT_POST, $isPost);
+        if ($isPost) {
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $postParams);
+        }
+        curl_setopt($curl, CURLOPT_USERAGENT, $userAgent);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $siteHeader);
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($curl, CURLOPT_TIMEOUT, 10);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -32,18 +38,57 @@ class AumQQHandler {
 
     public static function search($title, $artist) {
         $results = array();
-        $url = AumQQHandler::$siteSearch . urlencode($title) . "&_=" . AumQQHandler::getNowTimeStamp(13);
-        $jsonContent = AumQQHandler::getContent($url, '{"data":{"song":{"itemlist":[]}}}');
+        $url = AumQQHandler::$siteSearch . "?pcachetime=" . AumQQHandler::getNowTimeStamp(10);
+        $query = $artist . " - " . $title;
+        $params = <<<EOD
+{
+   "comm" : {
+      "_channelid" : "0",
+      "_os_version" : "6.1.7601-2%2C+Service+Pack+1",
+      "authst" : "",
+      "ct" : "19",
+      "cv" : "1873",
+      "guid" : "",
+      "patch" : "118",
+      "psrf_access_token_expiresAt" : 0,
+      "psrf_qqaccess_token" : "",
+      "psrf_qqopenid" : "",
+      "psrf_qqunionid" : "",
+      "tmeAppID" : "qqmusic",
+      "tmeLoginType" : 2,
+      "uin" : "0",
+      "wid" : "0"
+   },
+   "music.search.SearchCgiService" : {
+      "method" : "DoSearchForQQMusicDesktop",
+      "module" : "music.search.SearchCgiService",
+      "param" : {
+         "grp" : 1,
+         "num_per_page" : 40,
+         "page_num" : 1,
+         "query" : "$query",
+         "remoteplace" : "txt.newclient.top",
+         "search_type" : 0,
+         "searchid" : ""
+      }
+   }
+}
+EOD;
+
+        $jsonContent = AumQQHandler::getContent($url, '{"music.search.SearchCgiService":{"data":{"body":{"song":{"list":[]}}}}}', AumQQHandler::$siteSHeader, AumQQHandler::$userSAgent, true, $params);
         $json = json_decode($jsonContent, true);
 
-        $songArray = $json['data']['song']['itemlist'];
+        $songArray = $json['music.search.SearchCgiService']['data']['body']['song']['list'];
         foreach($songArray as $songItem) {
             $song = $songItem['name'];
             $id = 'songmid=' . $songItem['mid'] . '&musicid=' . $songItem['id'];
-            $singers = explode("/", $songItem["singer"]);
-            $des = $songItem['docid'];
+            $singers = array();
+            foreach ($songItem['singer'] as $singer) {
+                array_push($singers, $singer['name']);
+            }
+            $des = $songItem['album']['name'];
             if ($des === '' || $des === null) {
-                $des = $songItem['id'];
+                $des = $songItem['title'];
             }
 
             array_push($results, array('song' => $song, 'id' => $id, 'singers' => $singers, 'des' => $des));
@@ -53,7 +98,7 @@ class AumQQHandler {
 
     public static function downloadLyric($songId) {
         $url = AumQQHandler::$siteDownload . $songId;
-        $jsonContent = AumQQHandler::getContent($url, '{"lyric": "", "trans": ""}');
+        $jsonContent = AumQQHandler::getContent($url, '{"lyric": "", "trans": ""}', AumQQHandler::$siteLHeader, AumQQHandler::$userLAgent);
         $json = json_decode($jsonContent, true);
         $encodeLyric = $json['lyric'];
         $lyric = base64_decode($encodeLyric);
