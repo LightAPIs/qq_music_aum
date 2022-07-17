@@ -14,6 +14,14 @@
 
 打开 Audio Station，进入`设置`→`歌词插件`，点击`新增`按钮，浏览并选择 `aum` 文件完成安装，然后勾选以启用插件。
 
+## 其他说明
+
+由于官方似乎已经开始灰度下线旧的关键词搜索接口，故 `v1.8` 及之前版本的插件可能会正常无法工作，建议使用 `v1.9` 及之后版本的插件。
+
+目前 `v1.9` 和 `v1.10+` 使用不同的关键词搜索接口。`v1.9` 为快速搜索，结果较少；`v1.10+` 搜索结果和过去版本一样。
+
+且用且珍惜吧。
+
 ## 相关项目
 
 部分代码来自 Audio Station 网易歌词插件项目：[LudySu/Synology-LrcPlugin](https://github.com/LudySu/Synology-LrcPlugin)([Apache-2.0 license](https://github.com/LudySu/Synology-LrcPlugin/blob/master/LICENSE))
