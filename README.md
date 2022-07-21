@@ -6,6 +6,8 @@
 
 这是一个用于群辉 Audio Station 的歌词插件，歌词内容来源于[QQ音乐](https://y.qq.com/)。
 
+若查找到的歌词存在翻译，则歌词结果中自动拼接翻译内容。
+
 ## 下载插件
 
 前往 [Releases](https://github.com/LightAPIs/qq_music_aum/releases/latest) 下载插件压缩包 `zip` 文件并解压得到 `aum` 文件。
