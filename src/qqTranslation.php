@@ -54,17 +54,19 @@ class AumQQTranslation {
     private function getTimeFromTag($tag) {
         $min = (int)substr($tag, 1, 2);
         $sec = (int)substr($tag, 4, 2);
-        $mil = (int)substr($tag, 7, strlen($tag) - 8);
+        $milStr = substr($tag, 7, strlen($tag) - 8);
+        $milStr = str_pad($milStr, 3, "0", STR_PAD_RIGHT);
+        $mil = (int)$milStr;
         return $mil + $sec * 1000 + $min * 60 * 1000;
     }
 
     // 若 $lTime > $rTime, 返回 1; $lTime < $rTime, 返回 -1; $lTime == $rTime, 返回 0
     private function compareTime($lTime, $rTime) {
         $subVal = $lTime - $rTime;
-        // 允许有 1ms 的误差
-        if ($subVal > 1) {
+        // 允许有 100ms 的误差
+        if ($subVal > 100) {
             return 1;
-        } elseif ($subVal < -1) {
+        } elseif ($subVal < -100) {
             return  -1;
         } else {
             return 0;
@@ -77,7 +79,7 @@ class AumQQTranslation {
             $line = trim($line);
             $key = $this->getLrcTime($line);
             $value = $this->getLrcText($line, $key);
-            if (!$this->isValidLrcTime($key) || !$this->isValidLrcText($value)) {
+            if (!$this->isValidLrcTime($key)) {
                 $key = '';
                 $value = $line;
             }
@@ -86,8 +88,7 @@ class AumQQTranslation {
         return $result;
     }
 
-    public function getChineseTranslationLrc()
-    {
+    public function getChineseTranslationLrc() {
         $resultLrc = '';
         $orgLines = $this->processLrcLine($this->orgLrc);
         $transLines = $this->processLrcLine($this->transLrc);
@@ -122,7 +123,7 @@ class AumQQTranslation {
                 }
             }
 
-            if ($trans !== '') {
+            if ($this->isValidLrcText($trans)) {
                 $resultLrc .= " 【{$trans}】";
             }
             $resultLrc .= "\n";
