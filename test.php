@@ -11,7 +11,8 @@ $testArray = array(
     array('title' => '유후', 'artist' => 'Brave Girls'),
     array('title' => 'Mood(Explicit)', 'artist' => '24KGoldn&iann dior'),
     array('title' => 'Silence(Illenium Remix)', 'artist' => 'Khalid&Illenium&marshmello'),
-    array('title' => 'WOW', 'artist' => 'Dom.T')
+    array('title' => 'WOW', 'artist' => 'Dom.T'),
+    array('title' => 'めいど・うぃず・どらごんず', 'artist' => 'スーパーちょろゴンず')
 );
 
 foreach ($testArray as $key => $item) {
