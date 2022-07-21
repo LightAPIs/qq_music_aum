@@ -38,7 +38,7 @@ class AumQQHandler {
 
     public static function search($title, $artist) {
         $results = array();
-        $url = AumQQHandler::$siteSearch . "?pcachetime=" . AumQQHandler::getNowTimeStamp(10);
+        $url = self::$siteSearch . "?pcachetime=" . self::getNowTimeStamp(10);
         $query = $artist . " - " . $title;
         $params = <<<EOD
 {
@@ -75,7 +75,7 @@ class AumQQHandler {
 }
 EOD;
 
-        $jsonContent = AumQQHandler::getContent($url, '{"music.search.SearchCgiService":{"data":{"body":{"song":{"list":[]}}}}}', AumQQHandler::$siteSHeader, AumQQHandler::$userSAgent, true, $params);
+        $jsonContent = self::getContent($url, '{"music.search.SearchCgiService":{"data":{"body":{"song":{"list":[]}}}}}', self::$siteSHeader, self::$userSAgent, true, $params);
         $json = json_decode($jsonContent, true);
 
         $songArray = $json['music.search.SearchCgiService']['data']['body']['song']['list'];
@@ -97,8 +97,8 @@ EOD;
     }
 
     public static function downloadLyric($songId) {
-        $url = AumQQHandler::$siteDownload . $songId;
-        $jsonContent = AumQQHandler::getContent($url, '{"lyric": "", "trans": ""}', AumQQHandler::$siteLHeader, AumQQHandler::$userLAgent);
+        $url = self::$siteDownload . $songId;
+        $jsonContent = self::getContent($url, '{"lyric": "", "trans": ""}', self::$siteLHeader, self::$userLAgent);
         $json = json_decode($jsonContent, true);
         $encodeLyric = $json['lyric'];
         $lyric = base64_decode($encodeLyric);
