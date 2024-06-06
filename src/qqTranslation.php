@@ -88,6 +88,17 @@ class AumQQTranslation {
         return $result;
     }
 
+    private function checkBrackets($str) {
+        $firstChar = mb_substr($str, 0, 1);
+        $lastChar = mb_substr($str, -1, 1);
+
+        if ($firstChar == '【' && $lastChar == '】') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function getChineseTranslationLrc() {
         $resultLrc = '';
         $orgLines = $this->processLrcLine($this->orgLrc);
@@ -124,7 +135,11 @@ class AumQQTranslation {
             }
 
             if ($this->isValidLrcText($trans)) {
-                $resultLrc .= " 【{$trans}】";
+                if ($this->checkBrackets($trans)) {
+                    $resultLrc .= " {$trans}";
+                } else {
+                    $resultLrc .= " 【{$trans}】";
+                }
             }
             $resultLrc .= "\n";
         }
